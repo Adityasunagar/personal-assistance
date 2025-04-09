@@ -22,13 +22,16 @@ Aizen is a Python-based voice assistant capable of performing a variety of tasks
 ## Setup
 
 1. Clone the repository:
-
-
+github link : https://github.com/Adityasunagar/personal-assistance.git
 
 2. Install the dependencies:
+pip install -r requirements.txt
 
 
 3. Run the assistant:
+python Aizen.py
+
+
 
 ## Note
 
