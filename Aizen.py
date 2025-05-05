@@ -14,7 +14,9 @@
 # 12. Quit the program
 
 import pyttsx3
+import pyaudio
 import datetime
+import time
 import speech_recognition as sr
 import wikipedia
 import webbrowser
@@ -42,14 +44,32 @@ def speak(audio):
 def wishMe():
     hour = int(datetime.datetime.now().hour)
     if hour >= 0 and hour < 12:
+        print("Good Moring!")
         speak("Good Morning!")
+
     elif hour >= 12 and hour < 18:
+        print("Good Afternoon!")
         speak("Good Afternoon!")
+
     else:
         print("Good Evening!")
         speak("Good Evening!")
-    print("Greetings. I am Aizen, your personal assistant. How may I assist you today?" )
-    speak("Greetings. I am Aizen, your personal assistant. How may I assist you today?")
+    
+
+
+# Simulate system startup
+    print("System online...")
+    speak("System online...")
+    time.sleep(1)
+
+    print("Aizen initialized.")
+    speak("Aizen initialized.")
+    time.sleep(1)
+
+# Greet the user
+    print("Hello, I'm Aizen, your AI companion. How can I be of assistance?")
+    speak("Hello, I'm Aizen, your AI companion. How can I be of assistance?")
+
 
 #this function will take the user's voice input and convert it to text
 def takeCommand():
@@ -126,10 +146,12 @@ if __name__ == "__main__":
                 print(e)
 
         elif 'open youtube' in query:
+            print("Opening Youtube...")
             speak("Opening YouTube...")
             webbrowser.open("youtube.com")
 
         elif 'open google' in query:
+            print("Opening Google...")
             speak("Opening Google...")
             webbrowser.open("google.com")
 
@@ -137,11 +159,12 @@ if __name__ == "__main__":
             speak("Opening StackOverflow...")
             webbrowser.open("stackoverflow.com")
 
-        elif 'play music' or 'play a song' in query:
+        elif 'play music' in query or 'play a song' in query:
             music_dir = 'F:\\music'
             songs = os.listdir(music_dir)
             if songs:
                 speak("I found some songs in your music directory. Would you like to play a random song?")
+                time.sleep(1)
                 response = takeCommand()
                 if response is None:
                     continue
@@ -154,19 +177,19 @@ if __name__ == "__main__":
                         print(f"{i + 1}. {song}")
                         speak(f"Option {i + 1}: {song}")
                     speak("Please say the number of the song you want to play.")
-                    song_number = takeCommand()
-                    if song_number is None:
-                        continue
-                    if song_number.isdigit():
-                        song_index = int(song_number) - 1
-                        if 0 <= song_index < len(songs):
-                            os.startfile(os.path.join(music_dir, songs[song_index]))
-                        else:
-                            speak("Invalid number. Playing the first song.")
-                            os.startfile(os.path.join(music_dir, songs[0]))
+                song_number = takeCommand()
+                if song_number is None:
+                    continue
+                try:
+                    song_index = int(song_number) - 1
+                    if 0 <= song_index < len(songs):
+                        os.startfile(os.path.join(music_dir, songs[song_index]))
                     else:
-                        speak("No valid input received. Playing the first song.")
+                        speak("Invalid number. Playing the first song.")
                         os.startfile(os.path.join(music_dir, songs[0]))
+                except ValueError:
+                    speak("I couldn't understand the number. Playing the first song.")
+                    os.startfile(os.path.join(music_dir, songs[0]))
             else:
                 speak("No music files found in the directory. Please make sure the directory is not empty and try again.")
 
@@ -225,14 +248,15 @@ if __name__ == "__main__":
 
         elif 'calculate' in query:
             speak("What should I calculate?")
+            time.sleep(1)
             expression = takeCommand()
             if expression:
                 calculate(expression)
 
             
         elif 'quit' in query:
-            print("As you wish, Master. Until we meet again, farewell!")
-            speak("As you wish, Master. Until we meet again, farewell!")
+            print("Understood. I remain at your service. Until we meet again, take care.")
+            speak("Understood. I remain at your service. Until we meet again, take care.")
             break
 
         elif 'back to code' in query:
