@@ -13,6 +13,9 @@
 # 11. Send an email to a specific email address
 # 12. Quit the program
 
+import sys
+sys.path.append(r"E:\Python idle\Lib\site-packages")
+
 import pyttsx3
 import pyaudio
 import datetime
@@ -28,6 +31,20 @@ import requests
 import json
 import psutil
 from textblob import TextBlob
+import subprocess
+from transformers import pipeline
+
+import warnings
+warnings.filterwarnings("ignore")
+
+
+import logging
+logging.getLogger("transformers").setLevel(logging.ERROR)
+
+# the text generation pipeline from transformers
+# Initialize the text generation pipeline with a pre-trained model
+generator = pipeline("text-generation", model="gpt2")
+
 
 # Initialize the pyttsx3 engine
 engine = pyttsx3.init('sapi5')
@@ -39,12 +56,13 @@ def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
+
 #function to wish the user according to the time of the day and greet the user
 
 def wishMe():
     hour = int(datetime.datetime.now().hour)
     if hour >= 0 and hour < 12:
-        print("Good Moring!")
+        print("Good Morning!")
         speak("Good Morning!")
 
     elif hour >= 12 and hour < 18:
@@ -54,8 +72,6 @@ def wishMe():
     else:
         print("Good Evening!")
         speak("Good Evening!")
-    
-
 
 # Simulate system startup
     print("System online...")
@@ -69,6 +85,7 @@ def wishMe():
 # Greet the user
     print("Hello, I'm Aizen, your AI companion. How can I be of assistance?")
     speak("Hello, I'm Aizen, your AI companion. How can I be of assistance?")
+
 
 
 #this function will take the user's voice input and convert it to text
@@ -117,7 +134,33 @@ def calculate(expression):
         speak(f"The result of {expression} is {result}")
     except:
         speak("I couldn't calculate that.") 
-            
+
+#this function will answer the question based on the context provided using the question answering pipeline
+def answer_question(question, context):
+    qa = pipeline("question-answering")
+    result = qa(question=question, context=context)
+    return result['answer']
+
+#this function will generate a response based on the prompt provided using the text generation pipeline
+def generate_response(prompt):
+    response = generator(prompt, max_length=100, do_sample=True)
+    return response[0]['generated_text']
+
+
+#text chat mode using transformers for text generation 
+# using generator pipeline          
+def text_chat():
+    print("Entering text chat mode. Type 'exit' or 'quit' to leave.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ['exit', 'quit']:
+            print("Exiting text chat mode.")
+            break
+        response = generator(f"User: {user_input}\nAI:", max_length=100, do_sample=True, num_return_sequences=1)
+        ai_reply = response[0]['generated_text'].split("AI:")[-1].strip().split("\n")[0]
+        print("AI:", ai_reply)
+# Example: Call text_chat() when you want to start text chat
+# text_chat()
 
 #main function to execute the voice assistant program 
 if __name__ == "__main__":
@@ -158,6 +201,8 @@ if __name__ == "__main__":
         elif 'open stackoverflow' in query:
             speak("Opening StackOverflow...")
             webbrowser.open("stackoverflow.com")
+
+            
 
         elif 'play music' in query or 'play a song' in query:
             music_dir = 'F:\\music'
@@ -259,11 +304,19 @@ if __name__ == "__main__":
             speak("Understood. I remain at your service. Until we meet again, take care.")
             break
 
-        elif 'back to code' in query:
+        elif 'back to  vscode' in query:
             print("Taking you back to the code editor...")
             speak("Taking you back to the code editor...")
-            code_editor_path = "C:\\Users\\ADITYA\\AppData\\Local\\Programs\\Microsoft VS Code\\code.exe"
+            code_editor_path = "E:\\Microsoft VS Code\\code.exe"
             os.startfile(code_editor_path)
+            break
+        
+        elif 'back to code' in query:
+            print("Taking you back to code...")
+            speak("taking you back to code...")
+            code_editor_path = "E:\\Microsoft VS Code\\code.exe"
+            file_to_open="E:\\projects\\Pro-1\\Aizen.py"
+            subprocess.Popen([code_editor_path, file_to_open])
             break
 
         elif 'shutdown' in query:
@@ -279,5 +332,20 @@ if __name__ == "__main__":
             speak("opening Instagram")
             webbrowser.open('https://www.instagram.com/')
         
+        elif 'text chat' in query:
+            print("Entering text chat mode. Type 'exit' or 'quit' to leave.")
+            while True:
+                user_input = input("You: ")
+                if user_input.lower() in ['exit', 'quit']:
+                    print("Exiting text chat mode.")
+                    break
+                #Generate response
+                output=generate_response(f"User: {user_input}\nAI:")
+                if "AI: " in output:
+                    ai_reply=output.split("AI:")[1].strip().split("\n")[0]
+                else:
+                    ai_reply=output.strip().split("\n")[0]
+                print("AI:",ai_reply)
+
         else:
             continue
